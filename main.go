@@ -18,14 +18,22 @@ func main() {
 
 	fmt.Println(member)
 	fmt.Println(payment)
-	fmt.Println(ave)
 }
 
-//func calculation(payment []string, liquidation []string) (payment, liquidation) {
-//	// 現在の最大債務者と最大債権者を取得
-//	creditor = payment[]
-//	debtor = payment[-1]
-//}
+func calculation(payment map[string]int) (map[string]int, []string) {
+	var liquidation []string
+
+	// 現在の最大債務者と最大債権者を取得
+	creditor, priceCreditor := maxOfInts(payment)
+	debtor, priceDebtor := minOfInts(payment)
+
+	// 最大債権者と最大債務者の差額
+	amount := min(priceCreditor, abs(priceDebtor))
+
+	if amount == 0 {
+		return payment, liquidation
+	}
+}
 
 const MaxInt = int(^uint(0) >> 1)
 
@@ -91,12 +99,12 @@ func readInt1() int {
 	return s2i(sc.Text())
 }
 
-func maxOfInts(a []int) int {
-	res := -MaxInt
-	for _, v := range a {
-		res = max(res, v)
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	} else {
+		return a
 	}
-	return res
 }
 
 func max(a, b int) int {
@@ -113,12 +121,24 @@ func min(a, b int) int {
 	return b
 }
 
-func minOfInts(a []int) int {
-	res := MaxInt
-	for _, v := range a {
-		res = min(res, v)
+func maxOfInts(a map[string]int) (string, int) {
+	maxMember := ""
+	maxPrice := MaxInt
+	for name, price := range a {
+		maxPrice = max(maxPrice, price)
+		maxMember = name
 	}
-	return res
+	return maxMember, maxPrice
+}
+
+func minOfInts(a map[string]int) (string, int) {
+	minMember := ""
+	minPrice := -MaxInt
+	for name, price := range a {
+		minPrice = max(minPrice, price)
+		minMember = name
+	}
+	return minMember, minPrice
 }
 
 // String -> Int
