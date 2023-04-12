@@ -15,18 +15,24 @@ type liquidation struct {
 }
 
 func main() {
-	_, payment := useBufioScanner("sample")
-	// 精算を記録しておく配列
-	var adjustment []liquidation
+
+	member, originalPayment, actualPayment := useBufioScanner("sample")
+
+	var (
+		// 差額を記録
+		difference map[string]int
+		// 精算を記録
+		adjustment []liquidation
+	)
 
 	// 平均との差額を計算
-	for name, price := range payment {
-		payment[name] = price
+	for _, name := range member {
+		difference[name] = actualPayment[name] - originalPayment[name]
 	}
 
-	//payment, adjustment = calculation(payment, adjustment)
+	difference, adjustment = calculation(difference, adjustment)
 
-	fmt.Println(payment)
+	fmt.Println(difference)
 	fmt.Println(adjustment)
 }
 
@@ -35,9 +41,7 @@ func calculation(payment map[string]int, adjustment []liquidation) (map[string]i
 	// 現在の最大債務者と最大債権者を取得
 	creditor, priceCreditor := maxOfInts(payment)
 	debtor, priceDebtor := minOfInts(payment)
-
-	//fmt.Printf("creditor: %s, price: %d, debtor: %s, price: %d", creditor, priceCreditor, debtor, priceDebtor)
-
+	
 	// 最大債権者と最大債務者の差額
 	amount := min(abs(priceDebtor), priceCreditor)
 
@@ -56,7 +60,7 @@ const MaxInt = int(^uint(0) >> 1)
 
 var sc = bufio.NewScanner(os.Stdin)
 
-func useBufioScanner(fileName string) ([]string, map[string]int) {
+func useBufioScanner(fileName string) ([]string, map[string]int, map[string]int) {
 	fp, err := os.Open(fileName)
 	if err != nil {
 		panic(err)
@@ -73,27 +77,32 @@ func useBufioScanner(fileName string) ([]string, map[string]int) {
 	scanner.Scan()
 	// メンバーの配列と、各メンバーがどれだけ支払っているかのmap
 	member := make([]string, 0)
-	payment := make(map[string]int)
+	// 各メンバーの本来払うべき金額
+	originalPayment := make(map[string]int)
+	// 各メンバーの実際に払っている金額
+	actualPayment := make(map[string]int)
 
 	text1 := strings.Split(scanner.Text(), " ")
 	for _, s := range text1 {
 		member = append(member, s)
-		payment[s] = 0 // 初期値0
+		originalPayment[s] = 0 // 初期値0
+		actualPayment[s] = 0   // 初期値0
 	}
 
-	// 2行目以降の支払いを計算する
+	// 支払いを計算する
 	for scanner.Scan() {
 		text2 := strings.Split(scanner.Text(), ":")
-		//creditor := text2[0]
+		creditor := text2[0]
 		debtors := strings.Split(text2[1], " ")
-		amount := text2[2]
-		amountPerMember := s2i(amount) / len(debtors)
+		amount := s2i(text2[2])
+		amountPerMember := amount / len(debtors)
 		for _, name := range debtors {
-			payment[name] += amountPerMember
+			originalPayment[name] += amountPerMember
 		}
+		actualPayment[creditor] += amount
 	}
 
-	return member, payment
+	return member, originalPayment, actualPayment
 }
 
 func readString() string {
