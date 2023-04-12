@@ -9,27 +9,25 @@ import (
 )
 
 type liquidation struct {
-	creditor string
-	debtor   string
-	amount   int
+	creditor string // 債権者、お金をもらう人
+	debtor   string // 債務者、お金を払う人
+	amount   int    // 払う額
 }
 
 func main() {
+	// 精算を記録
+	var adjustment []liquidation
+	// 差額を記録
+	difference := make(map[string]int)
 
-	member, originalPayment, actualPayment := useBufioScanner("sample")
-
-	var (
-		// 差額を記録
-		difference map[string]int
-		// 精算を記録
-		adjustment []liquidation
-	)
+	member, originalPayment, actualPayment := readFile("sample")
 
 	// 平均との差額を計算
 	for _, name := range member {
 		difference[name] = actualPayment[name] - originalPayment[name]
 	}
 
+	// 再帰処理
 	difference, adjustment = calculation(difference, adjustment)
 
 	fmt.Println(difference)
@@ -41,7 +39,7 @@ func calculation(payment map[string]int, adjustment []liquidation) (map[string]i
 	// 現在の最大債務者と最大債権者を取得
 	creditor, priceCreditor := maxOfInts(payment)
 	debtor, priceDebtor := minOfInts(payment)
-	
+
 	// 最大債権者と最大債務者の差額
 	amount := min(abs(priceDebtor), priceCreditor)
 
@@ -60,7 +58,7 @@ const MaxInt = int(^uint(0) >> 1)
 
 var sc = bufio.NewScanner(os.Stdin)
 
-func useBufioScanner(fileName string) ([]string, map[string]int, map[string]int) {
+func readFile(fileName string) ([]string, map[string]int, map[string]int) {
 	fp, err := os.Open(fileName)
 	if err != nil {
 		panic(err)
