@@ -15,16 +15,16 @@ type liquidation struct {
 }
 
 func main() {
-	_, payment, ave := useBufioScanner("sample2")
+	_, payment := useBufioScanner("sample")
 	// 精算を記録しておく配列
 	var adjustment []liquidation
 
 	// 平均との差額を計算
 	for name, price := range payment {
-		payment[name] = price - ave
+		payment[name] = price
 	}
 
-	payment, adjustment = calculation(payment, adjustment)
+	//payment, adjustment = calculation(payment, adjustment)
 
 	fmt.Println(payment)
 	fmt.Println(adjustment)
@@ -56,7 +56,7 @@ const MaxInt = int(^uint(0) >> 1)
 
 var sc = bufio.NewScanner(os.Stdin)
 
-func useBufioScanner(fileName string) ([]string, map[string]int, int) {
+func useBufioScanner(fileName string) ([]string, map[string]int) {
 	fp, err := os.Open(fileName)
 	if err != nil {
 		panic(err)
@@ -74,8 +74,6 @@ func useBufioScanner(fileName string) ([]string, map[string]int, int) {
 	// メンバーの配列と、各メンバーがどれだけ支払っているかのmap
 	member := make([]string, 0)
 	payment := make(map[string]int)
-	payment2 := make([]map[string]int, 0)
-	sum := 0
 
 	text1 := strings.Split(scanner.Text(), " ")
 	for _, s := range text1 {
@@ -85,15 +83,17 @@ func useBufioScanner(fileName string) ([]string, map[string]int, int) {
 
 	// 2行目以降の支払いを計算する
 	for scanner.Scan() {
-		text2 := strings.Split(scanner.Text(), " ")
-		payment[text2[0]] += s2i(text2[1])
-		sum += s2i(text2[1])
-	}
-	for x, y := range payment {
-		payment2 = append(payment2, map[string]int{x: y})
+		text2 := strings.Split(scanner.Text(), ":")
+		//creditor := text2[0]
+		debtors := strings.Split(text2[1], " ")
+		amount := text2[2]
+		amountPerMember := s2i(amount) / len(debtors)
+		for _, name := range debtors {
+			payment[name] += amountPerMember
+		}
 	}
 
-	return member, payment, sum / len(member)
+	return member, payment
 }
 
 func readString() string {

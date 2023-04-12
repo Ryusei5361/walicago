@@ -1,8 +1,8 @@
 abe arashi kaito chutake rei ryusei
-abe 6210
-abe 10140
-kaito 520
-arashi 10800
-abe 6591
-abe 10000
-abe 9130
+abe:abe arashi ryusei:6210
+abe:abe arashi kaito chutake rei ryusei:10140
+kaito:arashi:520
+arashi:abe arashi kaito chutake rei ryusei:10800
+abe:abe arashi kaito chutake rei ryusei:6591
+abe:abe arashi kaito chutake rei ryusei:10000
+abe:abe arashi chutake rei ryusei:9130
