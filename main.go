@@ -8,31 +8,48 @@ import (
 	"strings"
 )
 
+type liquidation struct {
+	creditor string
+	debtor   string
+	amount   int
+}
+
 func main() {
-	member, payment, ave := useBufioScanner("sample")
+	_, payment, ave := useBufioScanner("sample2")
+	// 精算を記録しておく配列
+	var adjustment []liquidation
 
 	// 平均との差額を計算
 	for name, price := range payment {
 		payment[name] = price - ave
 	}
 
-	fmt.Println(member)
+	payment, adjustment = calculation(payment, adjustment)
+
 	fmt.Println(payment)
+	fmt.Println(adjustment)
 }
 
-func calculation(payment map[string]int) (map[string]int, []string) {
-	var liquidation []string
+func calculation(payment map[string]int, adjustment []liquidation) (map[string]int, []liquidation) {
 
 	// 現在の最大債務者と最大債権者を取得
 	creditor, priceCreditor := maxOfInts(payment)
 	debtor, priceDebtor := minOfInts(payment)
 
+	//fmt.Printf("creditor: %s, price: %d, debtor: %s, price: %d", creditor, priceCreditor, debtor, priceDebtor)
+
 	// 最大債権者と最大債務者の差額
-	amount := min(priceCreditor, abs(priceDebtor))
+	amount := min(abs(priceDebtor), priceCreditor)
 
 	if amount == 0 {
-		return payment, liquidation
+		return payment, adjustment
 	}
+
+	payment[creditor] -= amount
+	payment[debtor] += amount
+	adjustment = append(adjustment, liquidation{creditor: creditor, debtor: debtor, amount: amount})
+
+	return calculation(payment, adjustment)
 }
 
 const MaxInt = int(^uint(0) >> 1)
@@ -123,20 +140,24 @@ func min(a, b int) int {
 
 func maxOfInts(a map[string]int) (string, int) {
 	maxMember := ""
-	maxPrice := MaxInt
+	maxPrice := -MaxInt
 	for name, price := range a {
-		maxPrice = max(maxPrice, price)
-		maxMember = name
+		if price > maxPrice {
+			maxPrice = price
+			maxMember = name
+		}
 	}
 	return maxMember, maxPrice
 }
 
 func minOfInts(a map[string]int) (string, int) {
 	minMember := ""
-	minPrice := -MaxInt
+	minPrice := MaxInt
 	for name, price := range a {
-		minPrice = max(minPrice, price)
-		minMember = name
+		if price < minPrice {
+			minPrice = price
+			minMember = name
+		}
 	}
 	return minMember, minPrice
 }
