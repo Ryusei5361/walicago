@@ -11,6 +11,11 @@ import (
 func main() {
 	member, payment, ave := useBufioScanner("sample")
 
+	// 平均との差額を計算
+	for name, price := range payment {
+		payment[name] = price - ave
+	}
+
 	fmt.Println(member)
 	fmt.Println(payment)
 	fmt.Println(ave)
@@ -26,7 +31,7 @@ const MaxInt = int(^uint(0) >> 1)
 
 var sc = bufio.NewScanner(os.Stdin)
 
-func useBufioScanner(fileName string) ([]string, []map[string]int, int) {
+func useBufioScanner(fileName string) ([]string, map[string]int, int) {
 	fp, err := os.Open(fileName)
 	if err != nil {
 		panic(err)
@@ -63,7 +68,7 @@ func useBufioScanner(fileName string) ([]string, []map[string]int, int) {
 		payment2 = append(payment2, map[string]int{x: y})
 	}
 
-	return member, payment2, sum / len(member)
+	return member, payment, sum / len(member)
 }
 
 func readString() string {
