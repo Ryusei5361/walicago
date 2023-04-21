@@ -30,8 +30,15 @@ func main() {
 	// 再帰処理
 	difference, adjustment = calculation(difference, adjustment)
 
+	// 残債
+	remainDebt := 0
+	for _, last := range difference {
+		remainDebt += last
+	}
+
 	fmt.Println(difference)
 	fmt.Println(adjustment)
+	fmt.Println(remainDebt)
 }
 
 func calculation(payment map[string]int, adjustment []liquidation) (map[string]int, []liquidation) {
